@@ -45,6 +45,39 @@ int main()
     cout << "wypisz macierz 4 (z pliku)" << endl;
     macierz4.print();
 
+        //--------wypelnienie macierzy----//
+    for(int i = 0; i < row; i++)
+    {
+        for(int j = 0; j < row; j++)
+        {
+        int result = 1 + (rand() % 30);
+        macierz.set(i, j, result);
+        }
+    }
+
+    for(int i = 0; i < row; i++)
+    {
+        for(int j = 0; j < col; j++)
+        {
+        int result = 1 + (rand() % 30);
+        macierz2.set(i, j, result);
+        }
+    }
+    
+    for(int i = 0; i < row; i++)
+    {
+        for(int j = 0; j < col; j++)
+        {
+        int result = 1 + (rand() % 30);
+        macierz3.set(i, j, result);
+        }
+    }
+    
+
+    macierz.print();
+    macierz2.print();
+    macierz3.print();
+
     //------add, subtract, multiply-------//
         //matrix dodawanie
     cout << "---------" << endl;

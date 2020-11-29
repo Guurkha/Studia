@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/proco/cppprojects/Studia/laboratorium4/include/lab4/matrix.hpp
+iostream
+-
+vector
+-
+fstream
+-
+time.h
+-
+iomanip
+-
+
+C:/Users/proco/cppprojects/Studia/laboratorium4/src/main.cpp
+../include/lab4/matrix.hpp
+C:/Users/proco/cppprojects/Studia/laboratorium4/include/lab4/matrix.hpp
+
+C:/Users/proco/cppprojects/Studia/laboratorium4/src/matrix.cpp
+../include/lab4/matrix.hpp
+C:/Users/proco/cppprojects/Studia/laboratorium4/include/lab4/matrix.hpp
+

@@ -50,7 +50,8 @@ void labmatrix::print()
     {
         for(int j = 0; j < col(); j++)
         {
-            cout << " " << matrix[i][j];
+            cout << setw(5);
+            cout << matrix[i][j];
         }
         cout << endl;
     }
