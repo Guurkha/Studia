@@ -113,8 +113,8 @@ labmatrix labmatrix::multiply(labmatrix m2)
     int b = col();
     if(!(a == m2.row()))
     {
-        cout << "nie mozna mnozyc" << endl;
-        exit(1);
+        cout << "nie mozna mnozyc" << endl; 
+        exit(1); 
     }
     double value = 0;
     labmatrix matrix3(a, b);
