@@ -1,0 +1,304 @@
+/* Sweep
+ by BARRAGAN <http://barraganstudio.com>
+ This example code is in the public domain.
+
+ modified 8 Nov 2013
+ by Scott Fitzgerald
+ http://www.arduino.cc/en/Tutorial/Sweep
+*/
+
+#include <Servo.h>
+
+Servo myservo;  // create servo object to control a servo
+// twelve servo objects can be created on most boards
+Servo myservo3;
+Servo myservo4;
+Servo myservo5;
+Servo myservo6;
+Servo myservo7;
+Servo myservo8;
+Servo myservo9;
+Servo myservo10;
+Servo myservo11;
+Servo myservo12;
+
+int pos = 0;    // variable to store the servo position
+int Trig = 2;  //pin 2 Arduino połączony z pinem Trigger czujnika
+int Echo = 3;  //pin 3 Arduino połączony z pinem Echo czujnika
+int CM;        //odległość w cm
+long CZAS;     //długość powrotnego impulsu w uS
+int dist = 50;
+
+void setup() {
+  myservo11.attach(11);
+  myservo10.attach(10); 
+  myservo9.attach(9);  // attaches the servo on pin 9 to the servo object to jes to od 180-90 
+  myservo6.attach(6);
+  myservo5.attach(5);
+  myservo12.attach(12);
+  myservo8.attach(8);
+  myservo7.attach(7);
+  myservo4.attach(4);
+
+  //czujnik
+  Serial.begin(9600);                        //inicjalizaja monitora szeregowego
+  pinMode(Trig, OUTPUT);                     //ustawienie pinu 2 w Arduino jako wyjście
+  pinMode(Echo, INPUT);                      //ustawienie pinu 3 w Arduino jako wejście
+   
+  Serial.println("Test czujnika odleglosci");
+  
+}
+void pomiar_odleglosci ()
+{
+  digitalWrite(Trig, LOW);        //ustawienie stanu wysokiego na 2 uS - impuls inicjalizujacy - patrz dokumentacja
+  delayMicroseconds(2);
+  digitalWrite(Trig, HIGH);       //ustawienie stanu wysokiego na 10 uS - impuls inicjalizujacy - patrz dokumentacja
+  delayMicroseconds(15);
+  digitalWrite(Trig, LOW);
+  digitalWrite(Echo, HIGH); 
+  CZAS = pulseIn(Echo, HIGH);
+  CM = CZAS / 58;                //szerokość odbitego impulsu w uS podzielone przez 58 to odleglosc w cm - patrz dokumentacja
+}
+
+void loop() {
+
+//  myservo7.write(70);
+//  myservo12.write(45);
+//  myservo6.write(45);
+//  myservo9.write(45);
+//  myservo5.write(45);
+
+  //czujnik
+  myservo7.write(70);
+  pomiar_odleglosci();              //pomiar odległości
+  Serial.print("Odleglosc: ");      //wyświetlanie wyników na ekranie w pętli co 200 ms
+  Serial.print(CM);
+  Serial.println(" cm");
+      //ruch glowa
+  if(CM > dist)
+  {
+    //wyprostowanie glowy
+   myservo4.write(90);
+//lewa strona rozlegle
+//prawa wasko
+  myservo8.write(90);
+  myservo12.write(90); //prostopadla
+  myservo7.write(0);
+  myservo5.write(90); //prostopadla
+  myservo10.write(90);
+  myservo9.write(90); //prostopadla
+  myservo11.write(180);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //na odwrot
+  //prawa strona rozlegle
+  //lewa wasko
+  myservo8.write(0);
+  myservo12.write(110); //prostopadla
+  myservo7.write(70);
+  myservo5.write(75); //prostopadla
+  myservo10.write(180);
+  myservo9.write(90); //prostopadla
+  myservo11.write(90);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //lewa strona rozlegle
+//prawa wasko
+  myservo8.write(90);
+  myservo12.write(90); //prostopadla
+  myservo7.write(0);
+  myservo5.write(90); //prostopadla
+  myservo10.write(90);
+  myservo9.write(90); //prostopadla
+  myservo11.write(180);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //na odwrot
+  //prawa strona rozlegle
+  //lewa wasko
+  myservo8.write(0);
+  myservo12.write(110); //prostopadla
+  myservo7.write(70);
+  myservo5.write(75); //prostopadla
+  myservo10.write(180);
+  myservo9.write(90); //prostopadla
+  myservo11.write(90);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //lewa strona rozlegle
+//prawa wasko
+  myservo8.write(90);
+  myservo12.write(90); //prostopadla
+  myservo7.write(0);
+  myservo5.write(90); //prostopadla
+  myservo10.write(90);
+  myservo9.write(90); //prostopadla
+  myservo11.write(180);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //na odwrot
+  //prawa strona rozlegle
+  //lewa wasko
+  myservo8.write(0);
+  myservo12.write(110); //prostopadla
+  myservo7.write(70);
+  myservo5.write(75); //prostopadla
+  myservo10.write(180);
+  myservo9.write(90); //prostopadla
+  myservo11.write(90);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //lewa strona rozlegle
+//prawa wasko
+  myservo8.write(90);
+  myservo12.write(90); //prostopadla
+  myservo7.write(0);
+  myservo5.write(90); //prostopadla
+  myservo10.write(90);
+  myservo9.write(90); //prostopadla
+  myservo11.write(180);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //na odwrot
+  //prawa strona rozlegle
+  //lewa wasko
+  myservo8.write(0);
+  myservo12.write(110); //prostopadla
+  myservo7.write(70);
+  myservo5.write(75); //prostopadla
+  myservo10.write(180);
+  myservo9.write(90); //prostopadla
+  myservo11.write(90);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //lewa strona rozlegle
+//prawa wasko
+  myservo8.write(90);
+  myservo12.write(90); //prostopadla
+  myservo7.write(0);
+  myservo5.write(90); //prostopadla
+  myservo10.write(90);
+  myservo9.write(90); //prostopadla
+  myservo11.write(180);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //na odwrot
+  //prawa strona rozlegle
+  //lewa wasko
+  myservo8.write(0);
+  myservo12.write(110); //prostopadla
+  myservo7.write(70);
+  myservo5.write(75); //prostopadla
+  myservo10.write(180);
+  myservo9.write(90); //prostopadla
+  myservo11.write(90);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //lewa strona rozlegle
+//prawa wasko
+  myservo8.write(90);
+  myservo12.write(90); //prostopadla
+  myservo7.write(0);
+  myservo5.write(90); //prostopadla
+  myservo10.write(90);
+  myservo9.write(90); //prostopadla
+  myservo11.write(180);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //na odwrot
+  //prawa strona rozlegle
+  //lewa wasko
+  myservo8.write(0);
+  myservo12.write(110); //prostopadla
+  myservo7.write(70);
+  myservo5.write(75); //prostopadla
+  myservo10.write(180);
+  myservo9.write(90); //prostopadla
+  myservo11.write(90);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //lewa strona rozlegle
+//prawa wasko
+  myservo8.write(90);
+  myservo12.write(90); //prostopadla
+  myservo7.write(0);
+  myservo5.write(90); //prostopadla
+  myservo10.write(90);
+  myservo9.write(90); //prostopadla
+  myservo11.write(180);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //na odwrot
+  //prawa strona rozlegle
+  //lewa wasko
+  myservo8.write(0);
+  myservo12.write(110); //prostopadla
+  myservo7.write(70);
+  myservo5.write(75); //prostopadla
+  myservo10.write(180);
+  myservo9.write(90); //prostopadla
+  myservo11.write(90);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //lewa strona rozlegle
+//prawa wasko
+  myservo8.write(90);
+  myservo12.write(90); //prostopadla
+  myservo7.write(0);
+  myservo5.write(90); //prostopadla
+  myservo10.write(90);
+  myservo9.write(90); //prostopadla
+  myservo11.write(180);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //na odwrot
+  //prawa strona rozlegle
+  //lewa wasko
+  myservo8.write(0);
+  myservo12.write(110); //prostopadla
+  myservo7.write(70);
+  myservo5.write(75); //prostopadla
+  myservo10.write(180);
+  myservo9.write(90); //prostopadla
+  myservo11.write(90);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //lewa strona rozlegle
+//prawa wasko
+  myservo8.write(90);
+  myservo12.write(90); //prostopadla
+  myservo7.write(0);
+  myservo5.write(90); //prostopadla
+  myservo10.write(90);
+  myservo9.write(90); //prostopadla
+  myservo11.write(180);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  //na odwrot
+  //prawa strona rozlegle
+  //lewa wasko
+  myservo8.write(0);
+  myservo12.write(110); //prostopadla
+  myservo7.write(70);
+  myservo5.write(75); //prostopadla
+  myservo10.write(180);
+  myservo9.write(90); //prostopadla
+  myservo11.write(90);
+  myservo6.write(90); //prostopadla
+  delay(300);
+  
+  
+  }
+  else
+  {
+   //ruch glowa
+  myservo7.write(70);
+  myservo4.write(80);
+  delay(1000);
+  myservo4.write(20);
+  delay(1000);
+  myservo4.write(150);
+  delay(1000);
+  }
+  
+}
