@@ -1,0 +1,71 @@
+ This example code is in the public domain.
+
+ modified 8 Nov 2013
+ by Scott Fitzgerald
+ http://www.arduino.cc/en/Tutorial/Sweep
+*/
+
+#include <Servo.h>
+
+Servo myservo;  // create servo object to control a servo
+// twelve servo objects can be created on most boards
+Servo myservo3;
+Servo myservo4;
+Servo myservo5;
+Servo myservo6;
+Servo myservo7;
+Servo myservo8;
+Servo myservo9;
+Servo myservo10;
+Servo myservo11;
+
+int pos = 0;    // variable to store the servo position
+
+void setup() {
+  myservo11.attach(11);
+  myservo10.attach(10); 
+  myservo9.attach(9);  // attaches the servo on pin 9 to the servo object to jes to od 180-90 
+  myservo6.attach(6);
+  myservo5.attach(5);
+  myservo3.attach(3);
+  myservo8.attach(8);
+  myservo7.attach(7);
+  myservo4.attach(4);
+}
+
+void loop() {
+  //ruch glowa
+  myservo7.write(70);
+  myservo4.write(80);
+  delay(1000);
+  myservo4.write(20);
+  delay(1000);
+  myservo4.write(150);
+  delay(1000);
+  myservo4.write(90);
+//lewa strona rozlegle
+//prawa wasko
+  myservo8.write(90);
+  myservo7.write(0);
+  //delay(500);
+  myservo10.write(90);
+  myservo11.write(180);
+  delay(700);
+  //na odwrot
+  //prawa strona rozlegle
+  //lewa wasko
+  myservo8.write(0);
+  myservo7.write(70);
+  //delay(500);
+  myservo10.write(180);
+  myservo11.write(90);
+  delay(700);
+//  
+//  myservo7.write(70);
+//  myservo3.write(45);
+//  myservo6.write(45);
+//  myservo9.write(45);
+//  myservo5.write(45);
+
+  
+}
