@@ -1,0 +1,125 @@
+from fuzzython.fsets.triangular import Triangular
+from fuzzython.variable import Variable
+from fuzzython.adjective import Adjective
+from fuzzython.ruleblock import RuleBlock
+import matplotlib.pyplot as plt
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D  # Required for 3D plotting
+from fuzzython.systems.mamdani import MamdaniSystem
+
+#predkosc
+v_low = Triangular((9.9,0), (10,1), (50,0))
+v_medium = Triangular((10,0), (70,1), (100,0))
+v_fast = Triangular((60,0), (100,1), (170,0))
+v_very_fast = Triangular((120,0), (200,1), (200.1,0))
+
+a_v_low = Adjective('v_slow', v_slow)
+a_v_medium = Adjective('v_medium', v_medium)
+a_v_fast = Adjective('v_fast', v_fast)
+a_v_very_fast = Adjective('v_very_fast', v_very_fast)
+
+velocity = Variable('velocity', 'km/h', a_v_slow, a_v_medium, a_v_fast, a_v_very_fast)
+
+#widocznosc
+s_low = Triangular((0.049,0), (1,1), (2,0))
+s_medium = Triangular((1,0), (2,1), (4,0))
+s_high = Triangular((1.5,0), (4,1), (4.1,0))
+
+
+a_s_low = Adjective('s_low', s_low)
+a_s_medium = Adjective('s_medium', s_medium)
+a_s_high = Adjective('s_high', s_high)
+
+view = Variable('view', 'km', a_s_low, a_s_medium, a_s_high)
+
+# zmienna lingwistyczna `tip` opisująca jwysokość napiwku w skali od 0 do 25 procent (%)
+# trzy wartości lingwistyczne, trójkątne zbiory rozmyte: `t_low`, `t_medium`, `t_high`
+
+
+c_very_low = Triangular((-0.1,0), (0.1,1), (0.2,0))
+c_low = Triangular((0.15,0), (0.3,1), (0.45,0))
+c_medium = Triangular((0.2,0), (0.5,1), (0.7,0))
+c_high = Triangular((0.6,0), (0.8,1), (0.9,0))
+c_very_high = Triangular((0.8,0), (1,1), (1.1,0))
+a_c_very_low = Adjective('c_very_low', c_very_low)
+a_c_low = Adjective('c_very_low', c_low)
+a_c_medium = Adjective('c_medium', c_medium)
+a_c_high = Adjective('c_high', c_high)
+a_c_very_high = Adjective('c_very_high', c_very_high)
+
+crash = Variable('crash', '%', a_c_very_low, a_c_low, a_c_medium, a_c_high, a_c_very_high, defuzzification='COG', default=0)
+
+
+scope = locals()
+
+rule1 = 'if velocity is a_v_low and view is a_s_low then crash is a_c_very_low'
+rule2 = 'if velocity is a_v_medium and view is a_s_low then crash is a_c_low'
+rule3 = 'if velocity is a_v_fast and view is a_s_low then crash is a_c_medium'
+rule4 = 'if velocity is a_v_very_fast and view is a_s_low then crash is a_c_very_high'
+
+rule5 = 'if velocity is a_v_low and view is a_s_medium then crash is a_c_very_low'
+rule6 = 'if velocity is a_v_medium and view is a_s_medium then crash is a_c_very_low'
+rule7 = 'if velocity is a_v_fast and view is a_s_medium then crash is a_c_low'
+rule8 = 'if velocity is a_v_very_fast and view is a_s_medium then crash is a_c_high'
+
+rule9 = 'if velocity is a_v_low and view is a_s_high then crash is a_c_very_low'
+rule10 = 'if velocity is a_v_medium and view is a_s_high then crash is a_c_very_low'
+rule11 = 'if velocity is a_v_fast and view is a_s_high then crash is a_c_low'
+rule12 = 'if velocity is a_v_very_fast and view is a_s_high then crash is a_c_medium'
+
+block = RuleBlock('rb_mamdani', operators=('MIN','MAX','ZADEH'), activation='MIN', accumulation='MAX')
+block.add_rules(rule1, rule2, rule3, rule4, rule5, rule6, rule7, rule8, rule9, rule10, rule11, rule12, scope=scope)
+
+mamdani = MamdaniSystem('mamdani_model', block)
+
+def plot_fuzzyset(ax, fuzzy_set, x, *args, **kwargs):
+    y = np.array([fuzzy_set(e) for e in x])
+    ax.plot(x, y,  *args, **kwargs)
+    ax.set_ylim(-0.1, 1.1)
+    ax.legend()
+
+x_velocity = np.linspace(10, 200, 1000)
+x_view = np.linspace(0.05, 4, 1000)
+x_crash = np.linspace(0, 1, 1000)
+fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(12,8))
+((ax1), (ax2), (ax3)) = axs
+plot_fuzzyset(ax1, v_low, x_velocity, 'g', label='v_low')
+plot_fuzzyset(ax1, v_medium, x_velocity, 'b', label='v_medium')
+plot_fuzzyset(ax1, v_fast, x_velocity, 'r', label='v_fast')
+plot_fuzzyset(ax1, v_ultra_fast, x_velocity, 'c', label='v_very_fast')
+plot_fuzzyset(ax2, s_low, x_view, 'g', label='s_low')
+plot_fuzzyset(ax2, s_medium, x_view, 'b', label='s_medium')
+plot_fuzzyset(ax2, s_high, x_view, 'r', label='s_high')
+plot_fuzzyset(ax3, c_very_low, x_crash, 'g', label='c_very_low')
+plot_fuzzyset(ax3, c_low, x_crash, 'b', label='c_low')
+plot_fuzzyset(ax3, c_medium, x_crash, 'r', label='c_medium')
+plot_fuzzyset(ax3, c_high, x_crash, 'c', label='c_high')
+plot_fuzzyset(ax3, c_very_high, x_crash, 'y', label='c_very_high')
+# dane wejściowe
+#inputs = {'velocity': 180, 'view': 3} #tak naprawdę to można podać liczby rzeczywiste od 0 do 10
+# obliczenie odpowiedzi
+#res = mamdani.compute(inputs)
+#zwraca słownik
+#res
+sampledx = np.linspace(10, 200, 20)
+sampledy = np.linspace(0.05,4,20)
+x, y = np.meshgrid(sampledx, sampledy)
+z = np.zeros((len(sampledx),len(sampledy)))
+ 
+for i in range(len(sampledx)):
+    for j in range(len(sampledy)):
+        inputs = {'velocity': x[i, j], 'view': y[i, j]}
+        res = mamdani.compute(inputs)
+        z[i, j] = res['rb_mamdani']['crash']
+        
+fig = plt.figure(figsize=(15,15))
+ax = fig.add_subplot(111, projection='3d')
+surf = ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap='viridis', linewidth=0.4, antialiased=True)
+cset = ax.contourf(x, y, z, zdir='z', offset= 0, cmap='viridis', alpha=0.5)
+cset = ax.contourf(x, y, z, zdir='x', offset= 200, cmap='viridis', alpha=0.5)
+cset = ax.contourf(x, y, z, zdir='y', offset= 0, cmap='viridis', alpha=0.5)
+ax.set_xlabel('velocity')
+ax.set_ylabel('view')
+ax.set_zlabel('crash')
+ 
+ax.view_init(30, 140)
