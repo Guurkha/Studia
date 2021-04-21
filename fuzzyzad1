@@ -123,3 +123,106 @@ ax.set_ylabel('view')
 ax.set_zlabel('crash')
  
 ax.view_init(30, 140)
+
+
+
+
+
+
+
+
+
+
+from fuzzython.fsets.triangular import Triangular
+from fuzzython.variable import Variable
+from fuzzython.adjective import Adjective
+from fuzzython.ruleblock import RuleBlock
+import matplotlib.pyplot as plt
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D  # Required for 3D plotting
+from fuzzython.systems.sugeno import SugenoSystem
+
+#wczorajszy koszt
+yc_low = Triangular((0.9,0), (4.5,1), (10,0))
+yc_medium = Triangular((5,0), (10,1), (17,0))
+yc_high = Triangular((12,0), (20,1), (20.1,0))
+
+a_yc_low = Adjective('yc_low', yc_low)
+a_yc_medium = Adjective('yc_medium', yc_medium)
+a_yc_high = Adjective('yc_fast', yc_high)
+
+yesterday_cost = Variable('yesterday_cost', 'zloty', a_yc_low, a_yc_medium, a_yc_high)
+
+
+#dzisiejszy koszt
+tc_low = Triangular((0.9,0), (4.5,1), (10,0))
+tc_medium = Triangular((5,0), (10,1), (17,0))
+tc_high = Triangular((12,0), (20,1), (20.1,0))
+
+a_tc_low = Adjective('tc_low', tc_low)
+a_tc_medium = Adjective('tc_medium', tc_medium)
+a_tc_high = Adjective('tc_fast', tc_high)
+
+todays_cost = Variable('todays_cost', 'zloty', a_tc_low, a_tc_medium, a_tc_high)
+
+#rysowanie przynaleznosci zbiorow
+def plot_fuzzyset(ax, fuzzy_set, x, *args, **kwargs):
+    y = np.array([fuzzy_set(e) for e in x])
+    ax.plot(x, y,  *args, **kwargs)
+    ax.set_ylim(-0.1, 1.1)
+    ax.legend()
+    
+x_yc = np.linspace(1,20,1000)
+x_tc = np.linspace(1,20,1000)
+fig, axs = plt.subplots(nrows = 2, ncols = 1, figsize = (12,8))
+((ax1),(ax2)) = axs
+plot_fuzzyset(ax1, yc_low, x_yc, 'c', label='yc_low')
+plot_fuzzyset(ax1, yc_medium, x_yc, 'g', label='yc_medium')
+plot_fuzzyset(ax1, yc_high, x_yc, 'b', label='yc_high')
+plot_fuzzyset(ax2, tc_low, x_tc, 'c', label='tc_low')
+plot_fuzzyset(ax2, tc_medium, x_tc, 'g', label='tc_medium')
+plot_fuzzyset(ax2, tc_high, x_tc, 'b', label='tc_high')
+
+
+#zasady
+rule1 = 'if yesterday_cost is a_yc_low or todays_cost is a_tc_low then z=yesterday_cost*0.4+todays_cost*0.5 + 2'
+rule2 = 'if yesterday_cost is a_yc_medium or todays_cost is a_tc_low then z=yesterday_cost*0.1+todays_cost*0.1 + 1'
+rule3 = 'if yesterday_cost is a_yc_high or todays_cost is a_tc_low then z=yesterday_cost*0.05+todays_cost*0.04 + 1'
+rule4 = 'if yesterday_cost is a_yc_low or todays_cost is a_tc_medium then z=yesterday_cost*0.2+todays_cost*0.5 + 3'
+rule5 = 'if yesterday_cost is a_yc_low or todays_cost is a_tc_high then z=yesterday_cost*0.1+todays_cost*0.7 + 5'
+rule6 = 'if yesterday_cost is a_yc_high or todays_cost is a_tc_high then z=yesterday_cost*0.7+todays_cost*0.7 + 3'
+rule7 = 'if yesterday_cost is a_yc_medium or todays_cost is a_tc_medium then z=yesterday_cost*0.4+todays_cost*0.5 + 2'
+
+block = RuleBlock('rb_takagi', operators=('MIN', 'MAX', 'ZADEH'), activation='MIN', accumulation='MAX')
+block.add_rules(rule1, rule2, rule3, rule4, rule5, rule6, rule7,scope=scope)
+
+sugeno = SugenoSystem('model_takagi', block)
+
+# dane wejściowe
+#inputs = {'yesterday_cost': 6, 'todays_cost': 9}
+# obliczenie odpowiedzi
+#res = sugeno.compute(inputs)
+# zwraca słownik, trochę inaczej niż w mamdani
+#res
+
+sampled = np.linspace(1, 20, 40)
+x, y = np.meshgrid(sampled, sampled)
+z = np.zeros((len(sampled),len(sampled)))
+ 
+for i in range(len(sampled)):
+    for j in range(len(sampled)):
+        inputs = {'yesterday_cost': x[i, j], 'todays_cost': y[i, j]}
+        res = sugeno.compute(inputs)
+        z[i, j] = res['rb_takagi']
+        
+fig = plt.figure(figsize=(15,15))
+ax = fig.add_subplot(111, projection='3d')
+surf = ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap='viridis', linewidth=0.4, antialiased=True)
+cset = ax.contourf(x, y, z, zdir='z', offset= 0, cmap='viridis', alpha=0.5)
+cset = ax.contourf(x, y, z, zdir='x', offset= 20, cmap='viridis', alpha=0.5)
+cset = ax.contourf(x, y, z, zdir='y', offset= 20, cmap='viridis', alpha=0.5)
+ax.set_xlabel('yesterday_cost')
+ax.set_ylabel('todays_cost')
+ax.set_zlabel('tomorrow_cost')
+ 
+ax.view_init(30, 200)
