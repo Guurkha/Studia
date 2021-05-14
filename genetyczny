@@ -1,0 +1,201 @@
+# Miejsce na twój kod
+
+#def evolve(fun, pop_size, px, pm, generations, d):
+    #generuj początkową populację
+    #oceń osobniki w populacji
+    #znajdź i zapamiętaj najlepsze rozwiązanie
+    #uaktualnij listy statystyk
+    
+#    for i in range(generations):
+        #selekcja
+        #krzyżowanie
+        #mutacja
+        #oceń osobniki w populacji
+        #znajdź i zapamiętaj najlepsze rozwiązanie, jeśli jest lepsze niż dotychczasowe najlepsze
+        #uaktualnij listy statystyk
+        
+import io
+import time
+import base64
+import IPython
+
+def fig2b64(f):
+    data = io.BytesIO()
+    f.savefig(data, format='png')
+    data.seek(0)
+    return base64.b64encode(data.read()).decode()
+
+B, dx2 = nbits(a, b, dx)
+pop = gen_population(P, N, B)
+oc = evaluate_population(obj_func, pop, N, B, a, dx2)
+best_a, best_val = get_best(pop, oc)
+best_arg = decode_individual(best_a, N, B, a, dx2)
+
+lbest = [-best_val]
+lavg = [np.average(-oc)]
+lbest_pop = [-best_val]
+
+fig = plt.figure(figsize=(10,5))
+ax1 = fig.add_subplot(121)
+pop_d = []
+for os in pop:
+    pop_d.append(decode_individual(os, N, B, a, dx2))
+pop_d = np.array(pop_d)
+ax1.scatter(pop_d[:,0], pop_d[:,1], color='k',s=40)
+sampled = np.linspace(-1.5, 1.5, 20)
+x, y = np.meshgrid(sampled, sampled)
+z = np.zeros((len(sampled),len(sampled)))
+for ii in range(len(sampled)):
+    for j in range(len(sampled)):
+        z[ii, j] = -obj_func(np.array([x[ii,j], y[ii,j]]))
+CS = ax1.contour(x, y, z)
+ax1.clabel(CS, inline=1, fontsize=10)
+ax2 = fig.add_subplot(122)
+ax2.plot(lbest)
+ax2.plot(lavg)
+ax2.plot(lbest_pop)
+ax1.set_xlim(-1.5, 1.5)
+ax1.set_ylim(-1.5, 1.5)
+
+data_str = fig2b64(fig)
+rys = IPython.display.display_html(f'<img class="myimage" src="data:image/png;base64,{data_str}"></img>', raw=True)
+
+for i in range(max_iter):
+    time.sleep(0.2)
+    pop = roulette(pop, oc)
+    pop = cross(pop, pk)
+    pop = mutate(pop, pm)
+    oc = evaluate_population(obj_func, pop, N, B, a, dx2)
+    val = np.max(oc)
+    lbest_pop.append(-val)
+    if val > best_val:
+        best_val = val
+        best_arg = decode_individual(pop[np.argmax(oc)], N, B, a, dx2)
+    lbest.append(-best_val)
+    lavg.append(np.average(-oc))
+    pop_d = []
+    for os in pop:
+        pop_d.append(decode_individual(os, N, B, a, dx2))
+    pop_d = np.array(pop_d)
+    ax1.clear()
+    ax1.scatter(pop_d[:,0], pop_d[:,1], color='k',s=40)
+    sampled = np.linspace(-1.5, 1.5, 20)
+    x, y = np.meshgrid(sampled, sampled)
+    z = np.zeros((len(sampled),len(sampled)))
+    for ii in range(len(sampled)):
+        for j in range(len(sampled)):
+            z[ii, j] = -obj_func(np.array([x[ii,j], y[ii,j]]))
+    CS = ax1.contour(x, y, z)
+    ax1.clabel(CS, inline=1, fontsize=10)
+    ax2.clear()
+    ax2 = fig.add_subplot(122)
+    ax2.plot(lbest)
+    ax2.plot(lavg)
+    ax2.plot(lbest_pop)
+    ax1.set_xlim(-1.5, 1.5)
+    ax1.set_ylim(-1.5, 1.5)
+    data_str = fig2b64(fig)
+    IPython.display.display_javascript(f'''document.querySelector('.myimage').src = 'data:image/png;base64,{data_str}';''', raw=True)
+plt.close(1)
+
+return best_val
+
+
+
+
+
+
+def nbits(a, b, dx):
+    B = math.ceil(math.log(int((b - a) / dx + 1), 2.0))
+    dx_new = (b - a) / (2**B - 1)
+    return B, dx_new
+
+def gen_population(P, N, B):
+    ### TWÓJ KOD TUTAJ
+    pop = np.random.randint(2, size=(P, N*B))
+    return pop
+ 
+def evaluate_population(func, pop, N, B, a, dx):
+    evaluated_pop = np.array([func(decode_individual(ex, N, B, a, dx)) for ex in pop])
+    return evaluated_pop
+ 
+def decode_individual(individual, N, B, a, dx):
+    decode_individual_tab = np.zeros(N)
+    for i in range(N):
+        idx = i * B
+        suma = 0
+        for j in range(B):
+            suma += individual[idx + j] * 2**(B - j - 1)
+        decode_individual_tab[i] = a + suma * dx
+#       np.append(decode_individual_tab, a + suma + dx)
+    return decode_individual_tab
+ 
+def get_best(pop, evaluated_pop):
+    indeks = np.argmax(evaluated_pop)
+    best_value = evaluated_pop[indeks]
+    best_individual = pop[indeks]
+ 
+    return best_individual, best_value
+ 
+def roulette(pop, evaluated_pop):
+    N = len(evaluated_pop)
+ 
+    minV = np.min(evaluated_pop)
+    #    print('minV ', minV)
+    if minV < 0:
+        evaluated_pop -= 1.1 * minV
+    #    print('shifted: ', evaluated_pop)
+ 
+    suma = evaluated_pop.sum()
+    #    print('suma: ', suma)
+ 
+    evaluated_pop /= suma
+    #    print('normalized: ', evaluated_pop)
+ 
+    evaluated_pop = evaluated_pop.cumsum()
+    #    print('cumulated: ', evaluated_pop)
+ 
+    rpop = np.random.rand(N)
+    #    print('rpop: ', rpop)
+ 
+    new_pop = []
+ 
+    for i in range(N):
+        for j in range(N):
+            if rpop[i] <= evaluated_pop[j]:
+                new_pop.append(pop[j])
+                break
+ 
+    return np.array(new_pop)
+ 
+def cross(pop, pk):
+    def cross_pair(os1, os2):
+        point = np.random.randint(len(os1) - 1) + 1
+    #   print('point: ', point)
+        p1 = np.concatenate((os1[:point], os2[point:]))
+        p2 = np.concatenate((os2[:point], os1[point:]))
+        return p1, p2
+ 
+    new_pop = []
+    N = len(pop)
+    r = np.random.rand(N // 2)
+    #   print('r: ', r)
+ 
+    for i in range(N // 2):
+        if r[i] <= pk:
+            children = cross_pair(pop[2 * i], pop[2 * i + 1])
+            new_pop.append(children[0])
+            new_pop.append(children[1])
+        else:
+            new_pop.append(pop[2 * i])
+            new_pop.append(pop[2 * i + 1])
+    return np.array(new_pop)
+ 
+def mutate(pop, pm):
+    new_pop = np.copy(pop)
+ 
+    for i in range(len(pop)):
+        for j in range(len(pop[i])):
+            if np.random.rand() <= pm:
+                new_pop[i][j] = (new_pop[i][j] + 1) % 2
+    return new_pop
